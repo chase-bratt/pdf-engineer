@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Not sandboxed yet. Direct distribution is the primary channel,
+         and the MCP XPC/app-group work is where sandboxing gets designed
+         properly. Turning the sandbox on now would block file access before
+         the open/save panels are wired to security-scoped bookmarks. -->
+    <key>com.apple.security.app-sandbox</key>
+    <false/>
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+</dict>
+</plist>

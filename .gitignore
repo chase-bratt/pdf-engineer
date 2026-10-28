@@ -1,0 +1,37 @@
+# Build output and release artifacts
+.build/
+.build-*/
+build/
+dist/
+*.dmg
+DerivedData/
+*.dSYM
+*.dSYM.zip
+
+# Swift Package Manager / Xcode
+.swiftpm/
+xcuserdata/
+*.xcuserstate
+*.xcodeproj/
+*.xcworkspace/
+*.hmap
+
+# Test corpus: real-world PDFs stay local; only the manifest is versioned
+/corpus/**/*.pdf
+!/corpus/corpus-manifest.json
+
+# Internal planning docs (kept locally, not published)
+/AGENTS.md
+/BUILD.md
+
+# Local tool settings
+.claude/
+.env
+.env.*
+.idea/
+.vscode/
+
+# OS / editor cruft
+.DS_Store
+*.swp
+*~

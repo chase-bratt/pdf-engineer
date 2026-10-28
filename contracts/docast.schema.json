@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pdf-engineer.local/contracts/docast.schema.json",
+  "title": "DocAST",
+  "description": "Canonical lossless document representation. Key names are a published contract: renaming one is a breaking change requiring a schema version bump.",
+  "type": "object",
+  "required": ["schema", "source", "blocks"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "docast/1.0" },
+    "source": { "$ref": "#/$defs/source" },
+    "blocks": { "type": "array", "items": { "$ref": "#/$defs/block" } }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["filename", "sha256", "pages", "tagged"],
+      "additionalProperties": false,
+      "properties": {
+        "filename": { "type": "string" },
+        "sha256": { "type": "string", "description": "Hash of the source bytes, tying an export to an exact input." },
+        "pages": { "type": "integer", "minimum": 0 },
+        "tagged": { "type": "boolean", "description": "Whether the PDF carried a structure tree. Usually false in practice." },
+        "pdf_version": { "type": "string" },
+        "producer": { "type": "string" }
+      }
+    },
+    "block": {
+      "type": "object",
+      "required": ["id", "type", "text", "page", "bbox", "reading_order", "provenance"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "Stable across re-exports, so markdown anchors and annotation round-trips keep pointing at the same content." },
+        "type": {
+          "enum": ["heading", "paragraph", "list", "table", "figure", "code",
+                   "equation", "footnote", "caption", "header", "footer",
+                   "annotation", "form_field"]
+        },
+        "text": { "type": "string" },
+        "page": { "type": "integer", "minimum": 1, "description": "1-based, matching what the user sees." },
+        "bbox": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 4,
+          "maxItems": 4,
+          "description": "[x, y, width, height] in PDF user space, origin bottom-left."
+        },
+        "reading_order": { "type": "integer", "minimum": 0, "description": "Storage order is not reading order." },
+        "provenance": {
+          "enum": ["text_layer", "ocr", "struct_tree", "inferred"],
+          "description": "Load-bearing: distinguishes extracted text from an OCR guess. Conflating them is how silent corruption enters a pipeline."
+        },
+        "level": { "type": "integer", "minimum": 1, "description": "Heading depth. Always inferred for scanned input — Vision gives one title and a flat paragraph list, with no levels." },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Present when provenance is ocr." },
+        "lang": { "type": "string", "description": "BCP-47 language tag." },
+        "style": { "$ref": "#/$defs/style" }
+      }
+    },
+    "style": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Styling that carries meaning, not full visual fidelity.",
+      "properties": {
+        "font": { "type": "string" },
+        "size": { "type": "number" },
+        "bold": { "type": "boolean" },
+        "italic": { "type": "boolean" }
+      }
+    },
+    "table_cell": {
+      "type": "object",
+      "required": ["text", "row_range", "column_range"],
+      "additionalProperties": false,
+      "description": "Spans come from Vision's rowRange/columnRange (ClosedRange, verified in the macOS 27.0 SDK), so merged cells are representable.",
+      "properties": {
+        "text": { "type": "string" },
+        "row_range": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2, "description": "[lower, upper], inclusive." },
+        "column_range": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 }
+      }
+    }
+  }
+}
